@@ -34,7 +34,7 @@
       'work.label': 'Karya',
       'work.live': 'Live',
       'work.soon': 'Segera',
-      'work.p1.desc': 'Kumpulan tools praktis untuk Mobile Legends. Dibangun cepat, fokus ke kegunaan sehari-hari.',
+      'work.p1.desc': 'Grup Telegram Tools & Script Mobile Legends. Kumpulan tools praktis dan script untuk MLBB.',
       'work.p2.title': 'Prompt Lab',
       'work.p2.meta': 'Eksperimen AI',
       'work.p2.desc': 'Ruang eksperimen prompt engineering — koleksi teknik dan pola yang terus dikembangkan.',
@@ -87,7 +87,7 @@
       'work.label': 'Work',
       'work.live': 'Live',
       'work.soon': 'Soon',
-      'work.p1.desc': 'A set of practical tools for Mobile Legends. Built fast, focused on everyday usefulness.',
+      'work.p1.desc': 'Telegram group for Mobile Legends Tools & Scripts. Practical tools and scripts for MLBB.',
       'work.p2.title': 'Prompt Lab',
       'work.p2.meta': 'AI Experiments',
       'work.p2.desc': 'A playground for prompt engineering — techniques and patterns under continuous development.',
@@ -153,4 +153,45 @@
   } else {
     initLang();
   }
+
+
+  /* ========== Music Toggle ========== */
+  function initMusic() {
+    const btn = document.getElementById('musicBtn');
+    const audio = document.getElementById('bgm');
+    if (!btn || !audio) return;
+
+    let playing = false;
+    audio.volume = 0.35;
+
+    function setState(on) {
+      playing = on;
+      btn.classList.toggle('is-playing', on);
+      btn.setAttribute('aria-pressed', on ? 'true' : 'false');
+      try {
+        if (on) {
+          const p = audio.play();
+          if (p && p.catch) p.catch(() => { /* autoplay blocked */ setState(false); });
+        } else {
+          audio.pause();
+        }
+      } catch (e) { setState(false); }
+    }
+
+    btn.addEventListener('click', (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      setState(!playing);
+    });
+
+    // Respect reduced motion / user preference — start muted
+    setState(false);
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initMusic);
+  } else {
+    initMusic();
+  }
+
 })();

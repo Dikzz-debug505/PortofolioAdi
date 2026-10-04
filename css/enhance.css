@@ -128,3 +128,92 @@
   .contact-card{ transition:none; }
   .contact-card:hover{ transform:none; }
 }
+
+/* ========== Music Button ========== */
+.music-btn{
+  position: fixed;
+  bottom: clamp(20px, 3.5vh, 36px);
+  right: clamp(18px, 3vw, 32px);
+  z-index: 80;
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  border: 1px solid rgba(223,231,224,.16);
+  background: rgba(8,11,14,.72);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  color: var(--bone);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: border-color .35s var(--ease), background .35s var(--ease), transform .4s var(--ease-out), box-shadow .4s;
+  box-shadow: 0 4px 24px rgba(0,0,0,.35);
+}
+.music-btn:hover{
+  border-color: rgba(224,35,28,.5);
+  background: rgba(224,35,28,.12);
+  transform: scale(1.06);
+  box-shadow: 0 6px 28px rgba(224,35,28,.18);
+}
+.music-btn:active{ transform: scale(.96); }
+
+.music-icon{
+  position: absolute;
+  display: flex;
+  transition: opacity .3s, transform .35s var(--ease-out);
+}
+.music-icon--on{ opacity: 0; transform: scale(.7); }
+.music-icon--off{ opacity: 1; transform: scale(1); }
+
+.music-btn.is-playing .music-icon--on{ opacity: 1; transform: scale(1); }
+.music-btn.is-playing .music-icon--off{ opacity: 0; transform: scale(.7); }
+
+/* Animated equalizer bars */
+.music-bars{
+  position: absolute;
+  bottom: 9px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: flex-end;
+  gap: 2px;
+  height: 10px;
+  opacity: 0;
+  transition: opacity .3s;
+  pointer-events: none;
+}
+.music-btn.is-playing .music-bars{ opacity: 1; }
+
+.music-bars i{
+  display: block;
+  width: 2px;
+  background: var(--vermilion);
+  border-radius: 1px;
+  height: 3px;
+  animation: none;
+}
+.music-btn.is-playing .music-bars i:nth-child(1){ animation: barPulse .55s ease-in-out infinite alternate; animation-delay: 0s; }
+.music-btn.is-playing .music-bars i:nth-child(2){ animation: barPulse .45s ease-in-out infinite alternate; animation-delay: .1s; }
+.music-btn.is-playing .music-bars i:nth-child(3){ animation: barPulse .65s ease-in-out infinite alternate; animation-delay: .05s; }
+.music-btn.is-playing .music-bars i:nth-child(4){ animation: barPulse .5s ease-in-out infinite alternate; animation-delay: .15s; }
+
+@keyframes barPulse{
+  0%{ height: 3px; opacity: .6; }
+  100%{ height: 10px; opacity: 1; }
+}
+
+@media (max-width: 720px){
+  .music-btn{
+    width: 44px;
+    height: 44px;
+    bottom: 16px;
+    right: 14px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce){
+  .music-bars i{ animation: none !important; height: 6px !important; }
+  .music-btn{ transition: none; }
+  .music-btn:hover{ transform: none; }
+}
