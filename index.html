@@ -4,19 +4,37 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Adi Ilyas Javarona — Creative Developer</title>
-<meta name="description" content="Portfolio pribadi Adi Ilyas Javarona, Creative Developer — prompt engineering, kreativitas, dan inovasi, dirender live dalam WebGL.">
+<meta name="description" content="Portfolio Adi Ilyas Javarona — Creative Developer. Prompt engineering, kreativitas, dan inovasi yang dirender live dalam WebGL.">
+<meta name="theme-color" content="#05070a">
+<meta name="author" content="Adi Ilyas Javarona">
+
+<!-- Open Graph -->
+<meta property="og:type" content="website">
+<meta property="og:title" content="Adi Ilyas Javarona — Creative Developer">
+<meta property="og:description" content="Prompt engineering, kreativitas, dan inovasi. Portfolio yang dirender live dalam WebGL.">
+<meta property="og:locale" content="id_ID">
+<meta property="og:locale:alternate" content="en_US">
+
+<!-- Twitter -->
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Adi Ilyas Javarona — Creative Developer">
+<meta name="twitter:description" content="Prompt engineering, kreativitas, dan inovasi. Portfolio yang dirender live dalam WebGL.">
+
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%2305070a'/%3E%3Ccircle cx='16' cy='17' r='8' fill='%23e0231c'/%3E%3Crect x='4' y='8' width='24' height='2.6' fill='%23dfe7e0'/%3E%3Crect x='7' y='13' width='18' height='2' fill='%23dfe7e0'/%3E%3C/svg%3E">
 <link rel="stylesheet" href="css/fonts.css">
 <link rel="stylesheet" href="css/main.css">
+<link rel="stylesheet" href="css/enhance.css">
 </head>
 <body data-layout-hero="b" data-layout-story="b" data-layout-gallery="b"
-      data-layout-curriculum="b" data-layout-closing="b" data-layout-footer="b">
+      data-layout-curriculum="b" data-layout-closing="b" data-layout-footer="b"
+      data-lang="id">
 
 <canvas id="gl" aria-hidden="true"></canvas>
 <div id="vignette"></div>
 <div id="grain"></div>
 <div class="cur-dot" id="cursor"></div>
 
+<!-- Preloader -->
 <div id="pre">
   <div class="pre-in">
     <div class="pre-mark">
@@ -28,11 +46,13 @@
     <div class="pre-jp jp">影の道</div>
     <div class="pre-bar"><i id="pre-fill"></i></div>
     <div class="pre-meta">
-      <span>Menyiapkan portofolio</span><b><span id="pre-pct">0</span>%</b>
+      <span data-i18n="pre.loading">Menyiapkan portofolio</span>
+      <b><span id="pre-pct">0</span>%</b>
     </div>
   </div>
 </div>
 
+<!-- Navigation -->
 <header class="nav" id="nav">
   <a class="brand" href="#top" data-cursor>
     <svg viewBox="0 0 44 44" fill="none" aria-hidden="true">
@@ -42,158 +62,305 @@
     </svg>
     <span class="brand-tx"><b>ADI</b><i>CREATIVE DEVELOPER</i></span>
   </a>
+
   <nav class="nav-links" id="navlinks">
-    <a class="nav-link" href="#gate" data-cursor><span>Tentang</span><span class="alt">自己紹介</span></a>
-    <a class="nav-link" href="#pathways" data-cursor><span>Karya</span><span class="alt">作品</span></a>
-    <a class="nav-link" href="#lessons" data-cursor><span>Keahlian</span><span class="alt">技能</span></a>
-    <a class="nav-link" href="#eternity" data-cursor><span>Kontak</span><span class="alt">連絡</span></a>
+    <a class="nav-link" href="#gate" data-cursor>
+      <span data-i18n="nav.about">Tentang</span><span class="alt">自己紹介</span>
+    </a>
+    <a class="nav-link" href="#pathways" data-cursor>
+      <span data-i18n="nav.work">Karya</span><span class="alt">作品</span>
+    </a>
+    <a class="nav-link" href="#lessons" data-cursor>
+      <span data-i18n="nav.skills">Keahlian</span><span class="alt">技能</span>
+    </a>
+    <a class="nav-link" href="#contact" data-cursor>
+      <span data-i18n="nav.contact">Kontak</span><span class="alt">連絡</span>
+    </a>
   </nav>
-  <button class="nav-burger" aria-label="Menu" data-cursor><i></i><i></i></button>
+
+  <div class="nav-right">
+    <button class="lang-toggle" id="langToggle" data-cursor aria-label="Switch language">
+      <span class="lang-opt is-active" data-lang="id">ID</span>
+      <span class="lang-sep">/</span>
+      <span class="lang-opt" data-lang="en">EN</span>
+    </button>
+    <button class="nav-burger" aria-label="Menu" data-cursor><i></i><i></i></button>
+  </div>
 </header>
 
 <div class="page" id="top">
 
+<!-- Hero -->
 <section class="hero" id="hero" data-cam="0">
   <div class="hero-top">
-    <div class="eyebrow" data-rv="fade"><span class="dot"></span> Portofolio — Adi Ilyas Javarona</div>
+    <div class="eyebrow" data-rv="fade">
+      <span class="dot"></span>
+      <span data-i18n="hero.eyebrow">Portofolio — Adi Ilyas Javarona</span>
+    </div>
     <h1 class="display h-hero">
-      <span class="mask-line"><span>Creative Developer,</span></span>
-      <span class="mask-line"><span>merangkai ide jadi</span></span>
-      <span class="mask-line"><span>karya nyata.</span></span>
+      <span class="mask-line"><span data-i18n="hero.line1">Creative Developer,</span></span>
+      <span class="mask-line"><span data-i18n="hero.line2">merangkai ide jadi</span></span>
+      <span class="mask-line"><span data-i18n="hero.line3">karya nyata.</span></span>
     </h1>
-    <p class="hero-sub body" data-rv="up">Pelajar yang membangun kebiasaan berpikir kreatif dan inovatif
-      lewat prompt engineering dan eksplorasi teknologi sehari-hari.</p>
+    <p class="hero-sub body" data-rv="up" data-i18n="hero.sub">
+      Pelajar yang membangun kebiasaan berpikir kreatif dan inovatif
+      lewat prompt engineering dan eksplorasi teknologi sehari-hari.
+    </p>
   </div>
 
   <div class="hero-spacer"></div>
 
   <div class="hero-foot">
-    <div class="hero-cue" data-rv="fade"><span>Scroll untuk masuk</span><span class="track"><i></i></span></div>
+    <div class="hero-cue" data-rv="fade">
+      <span data-i18n="hero.scroll">Scroll untuk masuk</span>
+      <span class="track"><i></i></span>
+    </div>
     <div class="chapters" id="chips">
-      <div class="chip" data-chip="0" data-rv="up" data-cursor><span class="num">01</span>
-        <span class="tx"><b>Tentang Saya</b><p>Pelajar, anak kedua dari dua bersaudara, suka bereksperimen.</p></span></div>
-      <div class="chip" data-chip="1" data-rv="up" data-cursor><span class="num">02</span>
-        <span class="tx"><b>Karya</b><p>Proyek yang sudah dan sedang dikembangkan.</p></span></div>
-      <div class="chip" data-chip="2" data-rv="up" data-cursor><span class="num">03</span>
-        <span class="tx"><b>Keahlian</b><p>Prompt engineering, kreativitas, dan inovasi.</p></span></div>
-      <div class="chip" data-chip="3" data-rv="up" data-cursor><span class="num">04</span>
-        <span class="tx"><b>Kontak</b><p>Mari terhubung dan berkolaborasi.</p></span></div>
+      <div class="chip" data-chip="0" data-rv="up" data-cursor>
+        <span class="num">01</span>
+        <span class="tx">
+          <b data-i18n="chip.about.title">Tentang Saya</b>
+          <p data-i18n="chip.about.desc">Pelajar, anak kedua dari dua bersaudara, suka bereksperimen.</p>
+        </span>
+      </div>
+      <div class="chip" data-chip="1" data-rv="up" data-cursor>
+        <span class="num">02</span>
+        <span class="tx">
+          <b data-i18n="chip.work.title">Karya</b>
+          <p data-i18n="chip.work.desc">Proyek yang sudah dan sedang dikembangkan.</p>
+        </span>
+      </div>
+      <div class="chip" data-chip="2" data-rv="up" data-cursor>
+        <span class="num">03</span>
+        <span class="tx">
+          <b data-i18n="chip.skills.title">Keahlian</b>
+          <p data-i18n="chip.skills.desc">Prompt engineering, kreativitas, dan inovasi.</p>
+        </span>
+      </div>
+      <div class="chip" data-chip="3" data-rv="up" data-cursor>
+        <span class="num">04</span>
+        <span class="tx">
+          <b data-i18n="chip.contact.title">Kontak</b>
+          <p data-i18n="chip.contact.desc">Mari terhubung dan berkolaborasi.</p>
+        </span>
+      </div>
     </div>
   </div>
 
   <div class="word-fb" aria-hidden="true">ADI</div>
-
   <div class="hero-side" data-rv="up">
     <span class="v jp">影の道</span>
   </div>
 </section>
 
+<!-- About -->
 <section class="sec" id="gate" data-cam="1">
-
   <div class="sec-head" data-rv="fade">
-    <span class="k"><b>01</b> — Tentang Saya</span><span class="rule"></span><span class="k jp">自己紹介</span>
+    <span class="k"><b>01</b> — <span data-i18n="about.label">Tentang Saya</span></span>
+    <span class="rule"></span>
+    <span class="k jp">自己紹介</span>
   </div>
+
   <div class="gate-grid">
-    <h2 class="display h-sec" data-rv="up">Adi Ilyas Javarona, mencari bentuk lewat rasa ingin tahu.</h2>
+    <h2 class="display h-sec" data-rv="up" data-i18n="about.title">
+      Adi Ilyas Javarona, mencari bentuk lewat rasa ingin tahu.
+    </h2>
     <div class="gate-copy">
-      <p class="lead" data-rv="up">Saat ini masih menempuh pendidikan di sebuah sekolah swasta, sebagai
+      <p class="lead" data-rv="up" data-i18n="about.p1">
+        Saat ini masih menempuh pendidikan di sebuah sekolah swasta, sebagai
         anak kedua dari dua bersaudara. Dari situ tumbuh kebiasaan mengamati, mencoba, dan memperbaiki —
-        pelan-pelan membentuk cara berpikir seorang Creative Developer.</p>
-      <p class="body" data-rv="up">Ketertarikan pada teknologi bermula dari rasa penasaran sederhana:
+        pelan-pelan membentuk cara berpikir seorang Creative Developer.
+      </p>
+      <p class="body" data-rv="up" data-i18n="about.p2">
+        Ketertarikan pada teknologi bermula dari rasa penasaran sederhana:
         bagaimana sebuah ide bisa berubah jadi sesuatu yang bisa dipakai orang lain. Dari situ lahir
-        kebiasaan bereksperimen dengan prompt engineering dan membangun tools kecil yang berguna.</p>
+        kebiasaan bereksperimen dengan prompt engineering dan membangun tools kecil yang berguna.
+      </p>
       <a class="arrowlink" href="#pathways" data-rv="fade" data-cursor>
-        <span>Lihat karya</span>
-        <span class="ar"><svg viewBox="0 0 14 14" fill="none"><path d="M3 11 11 3M5 3h6v6" stroke="#dfe7e0" stroke-width="1.3"/></svg></span>
+        <span data-i18n="about.cta">Lihat karya</span>
+        <span class="ar">
+          <svg viewBox="0 0 14 14" fill="none"><path d="M3 11 11 3M5 3h6v6" stroke="#dfe7e0" stroke-width="1.3"/></svg>
+        </span>
       </a>
     </div>
   </div>
+
   <div class="gate-stats" data-rv="up">
-    <div><b>02</b><span>Bersaudara</span></div>
-    <div><b>01</b><span>Proyek aktif</span></div>
-    <div><b>∞</b><span>Rasa ingin tahu</span></div>
+    <div><b>02</b><span data-i18n="about.stat1">Bersaudara</span></div>
+    <div><b>01</b><span data-i18n="about.stat2">Proyek aktif</span></div>
+    <div><b>∞</b><span data-i18n="about.stat3">Rasa ingin tahu</span></div>
   </div>
 </section>
 
+<!-- Works -->
 <section class="sec" id="pathways" data-cam="2">
-
   <div class="sec-head" data-rv="fade">
-    <span class="k"><b>02</b> — Karya</span><span class="rule"></span><span class="k jp">作品</span>
+    <span class="k"><b>02</b> — <span data-i18n="work.label">Karya</span></span>
+    <span class="rule"></span>
+    <span class="k jp">作品</span>
   </div>
+
   <div class="cards" id="cards">
+    <!-- Project 1: Live -->
     <article class="card" data-rv="up" data-view="0" data-cursor>
-      <a href="https://tools-mlbb.vercel.app" target="_blank" rel="noopener" style="display:block;position:relative">
-      <div class="card-fr" data-frame>
-                <span class="card-ar"><svg viewBox="0 0 14 14" fill="none"><path d="M3 11 11 3M5 3h6v6" stroke="#dfe7e0" stroke-width="1.3"/></svg></span>
-        <i class="glow glow--flame" style="--gx:70.5%; --gy:47.2%; --gr:14%; --gt:3.7s; --gt2:5.3s; --gc1:rgba(255,198,124,.62); --gc2:rgba(226,118,40,.30)"></i>
-        <div class="card-lab"><b>Tools MLBB</b><span class="jp">道具</span></div>
-      </div>
+      <a href="https://tools-mlbb.vercel.app" target="_blank" rel="noopener" class="card-link">
+        <div class="card-fr" data-frame>
+          <span class="card-ar">
+            <svg viewBox="0 0 14 14" fill="none"><path d="M3 11 11 3M5 3h6v6" stroke="#dfe7e0" stroke-width="1.3"/></svg>
+          </span>
+          <span class="card-badge" data-i18n="work.live">Live</span>
+          <i class="glow glow--flame" style="--gx:70.5%; --gy:47.2%; --gr:14%; --gt:3.7s; --gt2:5.3s; --gc1:rgba(255,198,124,.62); --gc2:rgba(226,118,40,.30)"></i>
+          <div class="card-lab">
+            <b>Tools MLBB</b>
+            <span class="jp">道具</span>
+          </div>
+        </div>
       </a>
-      <div class="card-meta"><span>tools-mlbb.vercel.app</span><span>01 / 03</span></div>
+      <div class="card-meta">
+        <span>tools-mlbb.vercel.app</span>
+        <span>01 / 03</span>
+      </div>
+      <p class="card-desc" data-i18n="work.p1.desc">
+        Kumpulan tools praktis untuk Mobile Legends. Dibangun cepat, fokus ke kegunaan sehari-hari.
+      </p>
     </article>
+
+    <!-- Project 2: Coming -->
     <article class="card" data-rv="up" data-view="1" data-cursor>
       <div class="card-fr" data-frame>
-                <span class="card-ar"><svg viewBox="0 0 14 14" fill="none"><path d="M3 11 11 3M5 3h6v6" stroke="#dfe7e0" stroke-width="1.3"/></svg></span>
+        <span class="card-ar">
+          <svg viewBox="0 0 14 14" fill="none"><path d="M3 11 11 3M5 3h6v6" stroke="#dfe7e0" stroke-width="1.3"/></svg>
+        </span>
+        <span class="card-badge is-soon" data-i18n="work.soon">Segera</span>
         <i class="glow" style="--gx:80.2%; --gy:23.9%; --gr:22%; --gt:6.1s; --gt2:9.7s; --gc1:rgba(255,142,108,.50); --gc2:rgba(212,56,38,.24)"></i>
-        <div class="card-lab"><b>Segera Hadir</b><span class="jp">近日</span></div>
+        <div class="card-lab">
+          <b data-i18n="work.p2.title">Prompt Lab</b>
+          <span class="jp">実験</span>
+        </div>
       </div>
-      <div class="card-meta"><span>Proyek berikutnya</span><span>02 / 03</span></div>
+      <div class="card-meta">
+        <span data-i18n="work.p2.meta">Eksperimen AI</span>
+        <span>02 / 03</span>
+      </div>
+      <p class="card-desc" data-i18n="work.p2.desc">
+        Ruang eksperimen prompt engineering — koleksi teknik dan pola yang terus dikembangkan.
+      </p>
     </article>
+
+    <!-- Project 3: Coming -->
     <article class="card" data-rv="up" data-view="2" data-cursor>
       <div class="card-fr" data-frame>
-                <span class="card-ar"><svg viewBox="0 0 14 14" fill="none"><path d="M3 11 11 3M5 3h6v6" stroke="#dfe7e0" stroke-width="1.3"/></svg></span>
+        <span class="card-ar">
+          <svg viewBox="0 0 14 14" fill="none"><path d="M3 11 11 3M5 3h6v6" stroke="#dfe7e0" stroke-width="1.3"/></svg>
+        </span>
+        <span class="card-badge is-soon" data-i18n="work.soon">Segera</span>
         <i class="glow" style="--gx:48.0%; --gy:16.8%; --gr:20%; --gt:7.3s; --gt2:11.2s; --gc1:rgba(255,138,104,.52); --gc2:rgba(208,54,36,.24)"></i>
-        <div class="card-lab"><b>Segera Hadir</b><span class="jp">近日</span></div>
+        <div class="card-lab">
+          <b data-i18n="work.p3.title">Creative Tools</b>
+          <span class="jp">創造</span>
+        </div>
       </div>
-      <div class="card-meta"><span>Dalam pengembangan</span><span>03 / 03</span></div>
+      <div class="card-meta">
+        <span data-i18n="work.p3.meta">Dalam pengembangan</span>
+        <span>03 / 03</span>
+      </div>
+      <p class="card-desc" data-i18n="work.p3.desc">
+        Serangkaian tools kreatif kecil untuk membantu proses ideasi dan eksekusi.
+      </p>
     </article>
   </div>
 </section>
 
+<!-- Skills -->
 <section class="sec" id="lessons" data-cam="3">
-
   <div class="sec-head" data-rv="fade">
-    <span class="k"><b>03</b> — Keahlian</span><span class="rule"></span><span class="k jp">技能</span>
+    <span class="k"><b>03</b> — <span data-i18n="skills.label">Keahlian</span></span>
+    <span class="rule"></span>
+    <span class="k jp">技能</span>
   </div>
+
   <div class="cur-head">
-    <h2 class="display h-sec" data-rv="up">Tiga kekuatan yang terus diasah setiap hari.</h2>
-    <p class="body-lg" data-rv="up">Bukan sekadar daftar skill — ini cara berpikir yang dipakai
-      di setiap proyek, dari ide awal sampai jadi sesuatu yang bisa dipakai.</p>
+    <h2 class="display h-sec" data-rv="up" data-i18n="skills.title">
+      Tiga kekuatan yang terus diasah setiap hari.
+    </h2>
+    <p class="body-lg" data-rv="up" data-i18n="skills.sub">
+      Bukan sekadar daftar skill — ini cara berpikir yang dipakai
+      di setiap proyek, dari ide awal sampai jadi sesuatu yang bisa dipakai.
+    </p>
   </div>
+
   <div class="cur" id="cur">
     <div class="les" data-les="0" data-cursor>
       <span class="k">01</span>
       <h3>Prompt Engineering<em class="jp">指示設計</em></h3>
-      <p>Merancang instruksi yang tepat agar AI menghasilkan output yang benar-benar berguna.</p>
-      <span class="t">Inti</span><i class="bar"></i>
+      <p data-i18n="skills.s1">
+        Merancang instruksi yang tepat agar AI menghasilkan output yang benar-benar berguna.
+      </p>
+      <span class="t" data-i18n="skills.core">Inti</span>
+      <i class="bar"></i>
     </div>
     <div class="les" data-les="1" data-cursor>
       <span class="k">02</span>
       <h3>Creative<em class="jp">創造</em></h3>
-      <p>Melihat masalah dari sudut yang tidak biasa, lalu menuangkannya jadi ide konkret.</p>
-      <span class="t">Inti</span><i class="bar"></i>
+      <p data-i18n="skills.s2">
+        Melihat masalah dari sudut yang tidak biasa, lalu menuangkannya jadi ide konkret.
+      </p>
+      <span class="t" data-i18n="skills.core">Inti</span>
+      <i class="bar"></i>
     </div>
     <div class="les" data-les="2" data-cursor>
       <span class="k">03</span>
       <h3>Inovatif<em class="jp">革新</em></h3>
-      <p>Terus mencoba pendekatan baru dan tidak puas dengan cara yang itu-itu saja.</p>
-      <span class="t">Inti</span><i class="bar"></i>
+      <p data-i18n="skills.s3">
+        Terus mencoba pendekatan baru dan tidak puas dengan cara yang itu-itu saja.
+      </p>
+      <span class="t" data-i18n="skills.core">Inti</span>
+      <i class="bar"></i>
     </div>
   </div>
 </section>
 
-<section class="sec fin" id="eternity" data-cam="4">
+<!-- Contact (replaces simple closing) -->
+<section class="sec fin" id="contact" data-cam="4">
+  <div class="eyebrow" data-rv="fade">04 — <span data-i18n="contact.label">Kontak</span></div>
+  <h2 class="display" data-rv="up" data-i18n="contact.title">Mari terhubung.</h2>
+  <p class="body-lg" data-rv="up" data-i18n="contact.sub">
+    Punya ide, kolaborasi, atau sekadar ingin ngobrol tentang prompt engineering
+    dan kreativitas? Silakan hubungi.
+  </p>
 
-  <div class="eyebrow" data-rv="fade">04 — Penutup</div>
-  <h2 class="display" data-rv="up">Terus Berkarya</h2>
-  <p class="body-lg" data-rv="up">Ini baru awal. Masih banyak yang ingin dicoba, dipelajari,
-    dan dibangun — satu proyek pada satu waktu.</p>
+  <div class="contact-grid" data-rv="up">
+    <a class="contact-card" href="mailto:adi@example.com" data-cursor>
+      <span class="contact-k">Email</span>
+      <span class="contact-v">adi@example.com</span>
+      <span class="contact-ar">
+        <svg viewBox="0 0 14 14" fill="none" width="14" height="14"><path d="M3 11 11 3M5 3h6v6" stroke="currentColor" stroke-width="1.3"/></svg>
+      </span>
+    </a>
+    <a class="contact-card" href="https://github.com/" target="_blank" rel="noopener" data-cursor>
+      <span class="contact-k">GitHub</span>
+      <span class="contact-v">@adiilyas</span>
+      <span class="contact-ar">
+        <svg viewBox="0 0 14 14" fill="none" width="14" height="14"><path d="M3 11 11 3M5 3h6v6" stroke="currentColor" stroke-width="1.3"/></svg>
+      </span>
+    </a>
+    <a class="contact-card" href="https://tools-mlbb.vercel.app" target="_blank" rel="noopener" data-cursor>
+      <span class="contact-k">Project</span>
+      <span class="contact-v">Tools MLBB</span>
+      <span class="contact-ar">
+        <svg viewBox="0 0 14 14" fill="none" width="14" height="14"><path d="M3 11 11 3M5 3h6v6" stroke="currentColor" stroke-width="1.3"/></svg>
+      </span>
+    </a>
+  </div>
+
   <a class="cta" href="#top" data-rv="fade" data-cursor>
-    <i></i><span>Kembali ke atas</span>
+    <i></i>
+    <span data-i18n="contact.back">Kembali ke atas</span>
     <svg viewBox="0 0 14 14" fill="none" width="13" height="13"><path d="M3 11 11 3M5 3h6v6" stroke="#dfe7e0" stroke-width="1.3"/></svg>
   </a>
 </section>
 
+<!-- Footer -->
 <footer class="foot" data-cam="5">
   <div class="foot-grid">
     <div class="foot-brand">
@@ -201,18 +368,26 @@
         <circle cx="22" cy="25" r="8.6" fill="#e0231c" fill-opacity=".9"/>
         <path d="M5 13h34M9 18.4h26M22 8.5v27" stroke="#dfe7e0" stroke-width="1.5"/>
       </svg>
-      <p>Portofolio pribadi Adi Ilyas Javarona — Creative Developer. Dibangun dengan
-        Kreativitas & Keahlian</p>
+      <p data-i18n="footer.bio">
+        Portofolio pribadi Adi Ilyas Javarona — Creative Developer.
+        Dibangun dengan kreativitas & rasa ingin tahu.
+      </p>
     </div>
-    <div><h4>Navigasi</h4><ul>
-      <li><a href="#gate" data-cursor>Tentang Saya</a></li>
-      <li><a href="#pathways" data-cursor>Karya</a></li>
-      <li><a href="#lessons" data-cursor>Keahlian</a></li>
-      <li><a href="#eternity" data-cursor>Kontak</a></li>
-    </ul></div>
-    <div><h4>Karya</h4><ul>
-      <li><a href="https://tools-mlbb.vercel.app" target="_blank" rel="noopener" data-cursor>Tools MLBB</a></li>
-    </ul></div>
+    <div>
+      <h4 data-i18n="footer.nav">Navigasi</h4>
+      <ul>
+        <li><a href="#gate" data-cursor data-i18n="nav.about">Tentang Saya</a></li>
+        <li><a href="#pathways" data-cursor data-i18n="nav.work">Karya</a></li>
+        <li><a href="#lessons" data-cursor data-i18n="nav.skills">Keahlian</a></li>
+        <li><a href="#contact" data-cursor data-i18n="nav.contact">Kontak</a></li>
+      </ul>
+    </div>
+    <div>
+      <h4 data-i18n="footer.work">Karya</h4>
+      <ul>
+        <li><a href="https://tools-mlbb.vercel.app" target="_blank" rel="noopener" data-cursor>Tools MLBB</a></li>
+      </ul>
+    </div>
   </div>
   <div class="foot-base">
     <span>© 2026 Adi Ilyas Javarona</span>
@@ -224,10 +399,10 @@
 </div>
 
 <div id="fg-sky" aria-hidden="true"></div>
-
 <div class="rail" id="rail"></div>
 
 <script src="js/three.min.js"></script>
 <script src="js/main.js"></script>
+<script src="js/enhance.js"></script>
 </body>
 </html>
