@@ -155,7 +155,7 @@
   }
 
 
-  /* ========== Music Toggle ========== */
+  /* ========== Music Toggle + Autoplay attempt ========== */
   function initMusic() {
     const btn = document.getElementById('musicBtn');
     const audio = document.getElementById('bgm');
@@ -165,27 +165,53 @@
     audio.volume = 0.35;
 
     function setState(on) {
-      playing = on;
-      btn.classList.toggle('is-playing', on);
-      btn.setAttribute('aria-pressed', on ? 'true' : 'false');
+      playing = !!on;
+      btn.classList.toggle('is-playing', playing);
+      btn.setAttribute('aria-pressed', playing ? 'true' : 'false');
       try {
-        if (on) {
+        if (playing) {
           const p = audio.play();
-          if (p && p.catch) p.catch(() => { /* autoplay blocked */ setState(false); });
+          if (p && typeof p.then === 'function') {
+            p.catch(function () {
+              // Autoplay blocked by browser
+              playing = false;
+              btn.classList.remove('is-playing');
+              btn.setAttribute('aria-pressed', 'false');
+            });
+          }
         } else {
           audio.pause();
         }
-      } catch (e) { setState(false); }
+      } catch (e) {
+        playing = false;
+        btn.classList.remove('is-playing');
+        btn.setAttribute('aria-pressed', 'false');
+      }
     }
 
-    btn.addEventListener('click', (e) => {
+    // Manual toggle
+    btn.addEventListener('click', function (e) {
       e.preventDefault();
       e.stopPropagation();
       setState(!playing);
     });
 
-    // Respect reduced motion / user preference — start muted
-    setState(false);
+    // --- Autoplay strategy ---
+    // 1) Try immediately (works on some browsers / returning visitors)
+    setState(true);
+
+    // 2) If blocked, start on first user gesture (click / touch / key / scroll)
+    function unlock() {
+      if (!playing) setState(true);
+      window.removeEventListener('pointerdown', unlock, true);
+      window.removeEventListener('keydown', unlock, true);
+      window.removeEventListener('touchstart', unlock, true);
+      window.removeEventListener('scroll', unlock, true);
+    }
+    window.addEventListener('pointerdown', unlock, true);
+    window.addEventListener('keydown', unlock, true);
+    window.addEventListener('touchstart', unlock, true);
+    window.addEventListener('scroll', unlock, true);
   }
 
   if (document.readyState === 'loading') {
