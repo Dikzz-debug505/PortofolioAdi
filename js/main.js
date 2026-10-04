@@ -976,13 +976,14 @@ function sweepPoly(points, profile) {
   return g;
 }
 function roofGeo(A, B, R, Hr, thick, flare) {
-  const NX = 52, NZ = 34, FL = flare === undefined ? .30 : flare, e = 1e-3;
+  const NX = LOW ? 40 : 72, NZ = LOW ? 28 : 48, FL = flare === undefined ? .32 : flare, e = 1e-3;
   const hAt = (x, z) => {
     const cx = Math.min(1, Math.abs(x) / A), cz = Math.min(1, Math.abs(z) / B);
     const tx = Math.max(0, (Math.abs(x) - R) / Math.max(A - R, 1e-4));
     const t = Math.min(1, Math.max(tx, cz));
-    return Hr * Math.pow(1 - t, 1.45)
-         + FL * Hr * smooth(.72, 1, t) * (.52 + .68 * Math.min(cx, cz));
+    // Higher-res smoother curvature + more elegant eaves upsweep
+    return Hr * Math.pow(1 - t, 1.38)
+         + FL * Hr * smooth(.68, 1, t) * (.55 + .72 * Math.min(cx, cz));
   };
   const pos = [], nor = [], uv = [], idx = [];
   const N = new THREE.Vector3();
@@ -1128,34 +1129,52 @@ function buildShell() {
 
 function buildTemple() {
   const g = new THREE.Group();
-  const timber = surface(wallWood(), [4, 1.6], { color: 0x565150, normal: 1.5 });
-  const post   = surface(postWood(), [1.1, 1.0], { color: 0x8a746d, normal: 1.05, metalness: .03 });
-  const gold   = new THREE.MeshStandardMaterial({ color: 0x8f6f2e, roughness: .38, metalness: .78 });
+  // Richer materials
+  const timber = surface(wallWood(), [4, 1.6], { color: 0x4e4844, normal: 1.65, roughness: .88, metalness: .02 });
+  const post   = surface(postWood(), [1.1, 1.0], { color: 0x9a8176, normal: 1.15, metalness: .04, roughness: .82 });
+  const gold   = new THREE.MeshStandardMaterial({
+    color: 0xb8923a, roughness: .32, metalness: .86,
+    emissive: 0x3a2808, emissiveIntensity: .18
+  });
+  const darkGold = new THREE.MeshStandardMaterial({
+    color: 0x6e5420, roughness: .42, metalness: .72,
+    emissive: 0x221508, emissiveIntensity: .08
+  });
   const rf = lib('roof', () => texRoof());
-  const tileMat = surface(rf, [1, 1], { color: 0x2b343a, roughness: .74, metalness: .10, normal: 1.4 });
-  const paper = new THREE.MeshBasicMaterial({ color: hdr(1.06, .48, .18), fog: true, toneMapped: false });
-  const grid  = new THREE.MeshBasicMaterial({ map: tx(texShoji()), transparent: true,
-    depthWrite: false, fog: true });
+  const tileMat = surface(rf, [1.15, 1.15], {
+    color: 0x222b31, roughness: .68, metalness: .12, normal: 1.55
+  });
+  // Warmer, brighter shoji paper
+  const paper = new THREE.MeshBasicMaterial({
+    color: hdr(1.22, .52, .20), fog: true, toneMapped: false
+  });
+  const grid  = new THREE.MeshBasicMaterial({
+    map: tx(texShoji()), transparent: true, depthWrite: false, fog: true
+  });
   WORLD.paper = paper;
 
   function bay(w, h, x, y, z) {
     const p = new THREE.Mesh(new THREE.PlaneGeometry(w, h), paper);
     p.position.set(x, y, z); g.add(p);
     const s = new THREE.Mesh(new THREE.PlaneGeometry(w, h), grid);
-    s.position.set(x, y, z + .06); s.renderOrder = 3; g.add(s);
+    s.position.set(x, y, z + .05); s.renderOrder = 3; g.add(s);
   }
+
+  // More refined bracket system
   function brackets(halfW, halfD, y, step) {
     const parts = [];
     for (let x = -halfW; x <= halfW + 1e-3; x += step) {
       [-halfD, halfD].forEach(dz => {
-        parts.push(new THREE.BoxGeometry(.34, .46, .34).translate(x, y, TEMPLE_Z + dz));
-        parts.push(new THREE.BoxGeometry(.92, .17, .24).translate(x, y + .30, TEMPLE_Z + dz));
+        parts.push(new THREE.BoxGeometry(.32, .48, .32).translate(x, y, TEMPLE_Z + dz));
+        parts.push(new THREE.BoxGeometry(.98, .16, .26).translate(x, y + .32, TEMPLE_Z + dz));
+        parts.push(new THREE.BoxGeometry(.22, .14, .22).translate(x, y + .48, TEMPLE_Z + dz));
       });
     }
     for (let dz = -halfD + step; dz < halfD - 1e-3; dz += step) {
       [-halfW, halfW].forEach(x => {
-        parts.push(new THREE.BoxGeometry(.34, .46, .34).translate(x, y, TEMPLE_Z + dz));
-        parts.push(new THREE.BoxGeometry(.24, .17, .92).translate(x, y + .30, TEMPLE_Z + dz));
+        parts.push(new THREE.BoxGeometry(.32, .48, .32).translate(x, y, TEMPLE_Z + dz));
+        parts.push(new THREE.BoxGeometry(.26, .16, .98).translate(x, y + .32, TEMPLE_Z + dz));
+        parts.push(new THREE.BoxGeometry(.22, .14, .22).translate(x, y + .48, TEMPLE_Z + dz));
       });
     }
     const m = new THREE.Mesh(mergeGeos(parts), post);
@@ -1163,75 +1182,192 @@ function buildTemple() {
   }
 
   const F = PODIUM;
+  const SEG = LOW ? 12 : 28;
+  const SEG_LO = LOW ? 10 : 18;
 
-  const core = new THREE.Mesh(new THREE.BoxGeometry(13.6, 5.0, 8.2), timber);
-  core.position.set(0, F + 2.5, TEMPLE_Z); core.castShadow = true; g.add(core);
+  // Main hall core – slightly taller proportions
+  const core = new THREE.Mesh(new THREE.BoxGeometry(13.8, 5.2, 8.4), timber);
+  core.position.set(0, F + 2.6, TEMPLE_Z); core.castShadow = true; g.add(core);
+
+  // Shoji bays
   for (let i = 0; i < 5; i++) {
     const x = -5.6 + i * 2.8;
-    bay(1.55, 2.5, x, F + 2.6, TEMPLE_Z + 4.16);
+    bay(1.58, 2.55, x, F + 2.7, TEMPLE_Z + 4.22);
   }
+
+  // Columns with better taper + multi-part capital
   for (let i = 0; i < 6; i++) {
-    const c = new THREE.Mesh(new THREE.CylinderGeometry(.30, .34, 5.0, 14), post);
-    c.position.set(-7.0 + i * 2.8, F + 2.5, TEMPLE_Z + 4.24); c.castShadow = true; g.add(c);
+    const cx = -7.0 + i * 2.8;
+    const c = new THREE.Mesh(
+      new THREE.CylinderGeometry(.27, .34, 5.15, SEG), post
+    );
+    c.position.set(cx, F + 2.55, TEMPLE_Z + 4.28);
+    c.castShadow = true; g.add(c);
+
+    // Abacus / capital
+    const abacus = new THREE.Mesh(
+      new THREE.CylinderGeometry(.40, .40, .14, SEG_LO), post
+    );
+    abacus.position.set(cx, F + 5.18, TEMPLE_Z + 4.28); g.add(abacus);
+
+    const echinus = new THREE.Mesh(
+      new THREE.CylinderGeometry(.36, .42, .20, SEG_LO), post
+    );
+    echinus.position.set(cx, F + 5.05, TEMPLE_Z + 4.28); g.add(echinus);
   }
-  const sill = new THREE.Mesh(new THREE.BoxGeometry(14.6, .40, 8.9), post);
-  sill.position.set(0, F + .20, TEMPLE_Z); g.add(sill);
-  brackets(7.0, 4.4, F + 5.15, 1.40);
 
-  const lower = new THREE.Mesh(roofGeo(9.6, 6.4, 3.2, 2.9, .40, .26), tileMat);
-  lower.position.set(0, F + 5.6, TEMPLE_Z); lower.castShadow = true; g.add(lower);
+  // Sill / base beam
+  const sill = new THREE.Mesh(new THREE.BoxGeometry(14.8, .42, 9.0), post);
+  sill.position.set(0, F + .22, TEMPLE_Z); sill.castShadow = true; g.add(sill);
 
-  const up = new THREE.Mesh(new THREE.BoxGeometry(10.0, 3.4, 6.0), timber);
-  up.position.set(0, F + 9.4, TEMPLE_Z); up.castShadow = true; g.add(up);
-  const deck = new THREE.Mesh(new THREE.BoxGeometry(12.4, .26, 8.4), post);
-  deck.position.set(0, F + 7.72, TEMPLE_Z); g.add(deck);
-  [.10, .94].forEach(dy => [4.2, -4.2].forEach(dz => {
-    const r = new THREE.Mesh(new THREE.BoxGeometry(12.4, .17, .17), post);
-    r.position.set(0, F + 7.85 + dy, TEMPLE_Z + dz); g.add(r);
-  }));
-  for (let i = 0; i <= 16; i++) {
-    const b = new THREE.Mesh(new THREE.BoxGeometry(.10, 1.05, .10), post);
-    b.position.set(-6.2 + i * .775, F + 8.42, TEMPLE_Z + 4.2); g.add(b);
+  // Lower roof (first tier)
+  const lower = new THREE.Mesh(
+    roofGeo(9.6, 6.8, 2.15, 2.85, .36, .38), tileMat
+  );
+  lower.position.set(0, F + 5.75, TEMPLE_Z);
+  lower.castShadow = true; g.add(lower);
+  brackets(6.4, 3.9, F + 5.35, 1.55);
+
+  // Upper structure
+  const up = new THREE.Mesh(new THREE.BoxGeometry(10.2, 3.5, 6.2), timber);
+  up.position.set(0, F + 9.55, TEMPLE_Z); up.castShadow = true; g.add(up);
+
+  // Intermediate deck + railing
+  const deck = new THREE.Mesh(new THREE.BoxGeometry(12.6, .28, 8.6), post);
+  deck.position.set(0, F + 7.85, TEMPLE_Z); g.add(deck);
+
+  // Railing posts + rails
+  for (let i = 0; i < 17; i++) {
+    const bx = -6.3 + i * .79;
+    const b = new THREE.Mesh(new THREE.BoxGeometry(.11, 1.12, .11), post);
+    b.position.set(bx, F + 8.55, TEMPLE_Z + 4.28); g.add(b);
   }
-  for (let i = 0; i < 4; i++)
-    bay(1.0, 1.35, -4.5 + i * 3.0, F + 9.5, TEMPLE_Z + 3.06);
-  const plq = new THREE.Mesh(new THREE.BoxGeometry(1.9, 1.30, .16), gold);
-  plq.position.set(0, F + 9.7, TEMPLE_Z + 3.12); g.add(plq);
-  const plqIn = new THREE.Mesh(new THREE.BoxGeometry(1.52, .98, .18), timber);
-  plqIn.position.set(0, F + 9.7, TEMPLE_Z + 3.16); g.add(plqIn);
-  brackets(5.2, 3.3, F + 11.2, 1.30);
-
-  const upper = new THREE.Mesh(roofGeo(10.8, 7.2, 3.6, 5.2, .48, .26), tileMat);
-  upper.position.set(0, F + 11.7, TEMPLE_Z); upper.castShadow = true; g.add(upper);
-  const ridge = new THREE.Mesh(new THREE.BoxGeometry(7.6, .60, 1.05), tileMat);
-  ridge.position.set(0, F + 17.10, TEMPLE_Z); g.add(ridge);
-  [-1, 1].forEach(s => {
-    const oni = new THREE.Mesh(new THREE.ConeGeometry(.46, 1.15, 4), tileMat);
-    oni.position.set(s * 3.9, F + 17.6, TEMPLE_Z); oni.rotation.y = Math.PI / 4; g.add(oni);
+  [-1, 1].forEach(side => {
+    const rail = new THREE.Mesh(new THREE.BoxGeometry(12.6, .14, .14), post);
+    rail.position.set(0, F + 8.05 + (side > 0 ? .95 : 0), TEMPLE_Z + 4.28); g.add(rail);
   });
-  WORLD.templeTop = F + 18.2;
 
+  // Upper bays + plaque
+  for (let i = 0; i < 4; i++) {
+    bay(1.05, 1.4, -4.5 + i * 3.0, F + 9.65, TEMPLE_Z + 3.12);
+  }
+  const plq = new THREE.Mesh(new THREE.BoxGeometry(2.05, 1.38, .18), gold);
+  plq.position.set(0, F + 9.85, TEMPLE_Z + 3.18); g.add(plq);
+  const plqIn = new THREE.Mesh(new THREE.BoxGeometry(1.62, 1.05, .20), timber);
+  plqIn.position.set(0, F + 9.85, TEMPLE_Z + 3.22); g.add(plqIn);
+
+  // Top roof (main hip roof) – higher resolution feel
+  const upper = new THREE.Mesh(
+    roofGeo(7.4, 5.2, 2.55, 3.35, .34, .42), tileMat
+  );
+  upper.position.set(0, F + 11.85, TEMPLE_Z);
+  upper.castShadow = true; g.add(upper);
+  brackets(5.0, 3.2, F + 11.45, 1.45);
+
+  // Ridge beam
+  const ridge = new THREE.Mesh(new THREE.BoxGeometry(8.6, .58, 1.0), tileMat);
+  ridge.position.set(0, F + 17.25, TEMPLE_Z); g.add(ridge);
+
+  // Katsuogi – more logs, slightly varied
+  for (let i = -4; i <= 4; i++) {
+    const r = .12 + (i % 2 === 0 ? .02 : 0);
+    const kat = new THREE.Mesh(
+      new THREE.CylinderGeometry(r, r, 1.42, 12), tileMat
+    );
+    kat.rotation.z = Math.PI / 2;
+    kat.position.set(i * .92, F + 17.68, TEMPLE_Z);
+    g.add(kat);
+  }
+
+  // Chigi – more authentic crossed forked finials
   [-1, 1].forEach(s => {
-    const w = new THREE.Mesh(new THREE.BoxGeometry(7.6, 3.4, 5.2), timber);
-    w.position.set(s * 10.6, F + 1.7, TEMPLE_Z + 1.4); w.castShadow = true; g.add(w);
-    for (let i = 0; i < 3; i++)
-      bay(1.3, 1.6, s * 10.6 + (i - 1) * 2.4, F + 1.8, TEMPLE_Z + 4.06);
-    const r = new THREE.Mesh(roofGeo(5.0, 4.0, 1.4, 1.9, .32, .26), tileMat);
-    r.position.set(s * 10.6, F + 3.4, TEMPLE_Z + 1.4); r.castShadow = true; g.add(r);
+    const chigiGroup = new THREE.Group();
+    for (let k = -1; k <= 1; k += 2) {
+      const beam = new THREE.Mesh(new THREE.BoxGeometry(.24, 2.55, .20), tileMat);
+      beam.position.set(0, 1.15, 0);
+      beam.rotation.z = k * 0.42;
+      chigiGroup.add(beam);
+      // Inner gold edge strip
+      const edge = new THREE.Mesh(new THREE.BoxGeometry(.06, 2.4, .06), darkGold);
+      edge.position.set(k * 0.11, 1.15, 0.08);
+      edge.rotation.z = k * 0.42;
+      chigiGroup.add(edge);
+    }
+    // Decorative gold tip
+    const tip = new THREE.Mesh(new THREE.ConeGeometry(.18, .48, 6), gold);
+    tip.position.set(0, 2.45, 0);
+    chigiGroup.add(tip);
+    // Base collar
+    const collar = new THREE.Mesh(new THREE.BoxGeometry(.55, .18, .36), darkGold);
+    collar.position.set(0, .22, 0);
+    chigiGroup.add(collar);
+
+    chigiGroup.position.set(s * 4.25, F + 17.55, TEMPLE_Z);
+    g.add(chigiGroup);
   });
+
+  WORLD.templeTop = F + 20.1;
+
+  // Side wings – slightly refined
+  [-1, 1].forEach(s => {
+    const w = new THREE.Mesh(new THREE.BoxGeometry(7.7, 3.5, 5.3), timber);
+    w.position.set(s * 10.7, F + 1.75, TEMPLE_Z + 1.4);
+    w.castShadow = true; g.add(w);
+    for (let i = 0; i < 3; i++) {
+      bay(1.32, 1.65, s * 10.7 + (i - 1) * 2.4, F + 1.85, TEMPLE_Z + 4.1);
+    }
+    const r = new THREE.Mesh(
+      roofGeo(5.1, 4.1, 1.45, 2.0, .33, .30), tileMat
+    );
+    r.position.set(s * 10.7, F + 3.5, TEMPLE_Z + 1.4);
+    r.castShadow = true; g.add(r);
+  });
+
+  // Foundation stones under main hall (subtle)
+  for (let i = -2; i <= 2; i++) {
+    const stone = new THREE.Mesh(
+      new THREE.BoxGeometry(2.4, .38, 1.8),
+      surface(lib('granite', () => texStone(11)), [1.2, 1.2], { color: 0x6a7378, normal: 1.2 })
+    );
+    stone.position.set(i * 2.9, F + .19, TEMPLE_Z + 4.6);
+    stone.castShadow = true; stone.receiveShadow = true;
+    g.add(stone);
+  }
 
   scene.add(g); WORLD.temple = g;
 
-  const spill = new THREE.Mesh(new THREE.PlaneGeometry(30, 16),
-    new THREE.MeshBasicMaterial({ map: tx(texGlow('rgba(255,150,66,.80)', 'rgba(240,96,26,.24)')),
-      transparent: true, blending: THREE.AdditiveBlending, depthWrite: false, fog: false, opacity: .30 }));
-  spill.position.set(0, F + 3.0, TEMPLE_Z + 5.6); spill.renderOrder = 2;
+  // Multi-layer hall glow – warmer & richer
+  const spill = new THREE.Mesh(new THREE.PlaneGeometry(34, 20),
+    new THREE.MeshBasicMaterial({
+      map: tx(texGlow('rgba(255,176,86,.92)', 'rgba(242,118,36,.32)')),
+      transparent: true, blending: THREE.AdditiveBlending,
+      depthWrite: false, fog: false, opacity: .42
+    }));
+  spill.position.set(0, F + 3.2, TEMPLE_Z + 5.9);
+  spill.renderOrder = 2;
   scene.add(spill); WORLD.hallHalo = spill;
 
-  const mist = new THREE.Mesh(new THREE.PlaneGeometry(64, 20),
-    new THREE.MeshBasicMaterial({ map: tx(texGlow('rgba(150,178,190,.62)', 'rgba(104,138,154,.20)')),
-      transparent: true, blending: THREE.AdditiveBlending, depthWrite: false, fog: false, opacity: .17 }));
-  mist.position.set(0, F - 1.4, TEMPLE_Z + 10); mist.renderOrder = 2; scene.add(mist);
+  // Secondary tighter glow for depth
+  const spillCore = new THREE.Mesh(new THREE.PlaneGeometry(18, 12),
+    new THREE.MeshBasicMaterial({
+      map: tx(texGlow('rgba(255,190,110,.95)', 'rgba(255,140,50,.35)')),
+      transparent: true, blending: THREE.AdditiveBlending,
+      depthWrite: false, fog: false, opacity: .28
+    }));
+  spillCore.position.set(0, F + 3.4, TEMPLE_Z + 5.5);
+  spillCore.renderOrder = 3;
+  scene.add(spillCore); WORLD.hallHaloCore = spillCore;
+
+  // Soft atmospheric mist in front of temple
+  const mist = new THREE.Mesh(new THREE.PlaneGeometry(74, 26),
+    new THREE.MeshBasicMaterial({
+      map: tx(texGlow('rgba(155,182,198,.72)', 'rgba(105,140,158,.24)')),
+      transparent: true, blending: THREE.AdditiveBlending,
+      depthWrite: false, fog: false, opacity: .24
+    }));
+  mist.position.set(0, F - 1.1, TEMPLE_Z + 11.5);
+  mist.renderOrder = 2;
+  scene.add(mist);
 }
 
 const MOON = { x: 17.9, y: 31.9, z: -72, r: 8.6 };
@@ -1575,10 +1711,10 @@ function buildAtmosphere() {
     scene.add(h); WORLD.haze.push(h);
   }
 
-  const N = LOW ? 220 : 460;
+  const N = LOW ? 280 : 620;
   const pos = new Float32Array(N * 3), seed = new Float32Array(N);
   for (let i = 0; i < N; i++) {
-    pos[i * 3] = (rnd() - .5) * 30; pos[i * 3 + 1] = rnd() * 11; pos[i * 3 + 2] = -26 + rnd() * 36;
+    pos[i * 3] = (rnd() - .5) * 32; pos[i * 3 + 1] = rnd() * 12; pos[i * 3 + 2] = -28 + rnd() * 40;
     seed[i] = rnd();
   }
   const g = new THREE.BufferGeometry();
@@ -2271,9 +2407,11 @@ function buildCardCloth() {
 }
 
 function buildLights() {
-  scene.add(new THREE.HemisphereLight(0x53838f, 0x060a08, .13));
+  // Cool ambient sky + warm ground bounce
+  scene.add(new THREE.HemisphereLight(0x5a8f9c, 0x080c0a, .16));
 
-  const key = new THREE.DirectionalLight(0xb6dbe4, 1.22);
+  // Main key light (moonlight feel)
+  const key = new THREE.DirectionalLight(0xbcdfe8, 1.35);
   key.position.set(2.6, 21, 2.5);
   key.target.position.set(0, 2.2, -12.5); scene.add(key.target);
   if (WANT_SHADOW) {
@@ -2281,30 +2419,35 @@ function buildLights() {
     const S = LOW ? 1024 : 2048;
     key.shadow.mapSize.set(S, S);
     const c = key.shadow.camera;
-    c.left = -26; c.right = 26; c.top = 34; c.bottom = -16; c.near = 3; c.far = 78;
-    key.shadow.bias = -0.0012; key.shadow.normalBias = .035; key.shadow.radius = 2.2;
+    c.left = -28; c.right = 28; c.top = 36; c.bottom = -18; c.near = 3; c.far = 80;
+    key.shadow.bias = -0.0011; key.shadow.normalBias = .032; key.shadow.radius = 2.6;
   }
   scene.add(key); WORLD.key = key;
 
-  const moonKey = new THREE.DirectionalLight(0xff6a42, .52);
+  // Stronger warm moonlight from the red moon
+  const moonKey = new THREE.DirectionalLight(0xff6e48, .62);
   moonKey.position.set(26, 30, -60);
   moonKey.target.position.set(0, 8, -40); scene.add(moonKey.target);
   scene.add(moonKey);
 
-  const hallL = new THREE.PointLight(0xff8a26, 2.3, 15, 2);
-  hallL.position.set(0, PODIUM + 1.2, TEMPLE_Z + 8.6); scene.add(hallL); WORLD.hallLight = hallL;
+  // Hall interior glow – warmer, richer, slightly stronger
+  const hallL = new THREE.PointLight(0xff9a36, 3.25, 18.0, 1.85);
+  hallL.position.set(0, PODIUM + 1.45, TEMPLE_Z + 8.3); scene.add(hallL); WORLD.hallLight = hallL;
   [-1, 1].forEach(s => {
-    const w = new THREE.PointLight(0xff8420, 2.2, 11, 2);
-    w.position.set(s * 11.4, PODIUM + 1.2, TEMPLE_Z + 5.6); scene.add(w);
+    const w = new THREE.PointLight(0xff8e30, 2.75, 13.5, 1.85);
+    w.position.set(s * 11.5, PODIUM + 1.35, TEMPLE_Z + 5.4); scene.add(w);
   });
 
-  const moonL = new THREE.PointLight(0xff3a1c, 3.0, 46, 2);
+  // Red moon point light
+  const moonL = new THREE.PointLight(0xff3c1e, 3.4, 50, 1.9);
   moonL.position.set(11.0, 17.0, -24.0); scene.add(moonL); WORLD.moonLight = moonL;
 
-  const fill = new THREE.PointLight(0x86c6d2, 0.95, 30, 2);
+  // Cool fill
+  const fill = new THREE.PointLight(0x8eccd6, 1.05, 32, 2);
   fill.position.set(-1, 13.5, -16.0); scene.add(fill);
 
-  const stairL = new THREE.PointLight(0xffa049, 4.2, 17, 2);
+  // Stair accent
+  const stairL = new THREE.PointLight(0xffa852, 4.6, 18, 1.9);
   stairL.position.set(0, 7.6, -26.0); scene.add(stairL);
 }
 const POST = { levels: [] };
@@ -2896,11 +3039,12 @@ function updateWorld(dt) {
   RIG.focusAmt = damp(RIG.focusAmt, RIG.focus >= 0 ? 1 : 0, 5, dt);
   const pulse = Math.sin(clock * 1.9) * .5 + .5;
   const f = RIG.focusAmt;
-  if (WORLD.hallHalo) WORLD.hallHalo.material.opacity = .30 + f * .14 + Math.sin(clock * .6) * .035;
-  if (WORLD.hallLight) WORLD.hallLight.intensity = 3.4 * (1 + f * .30) * (1 + Math.sin(clock * .43) * .045);
-  if (WORLD.moonHalo) WORLD.moonHalo.material.opacity = .44 + f * .10 + Math.sin(clock * .34) * .05;
+  if (WORLD.hallHalo) WORLD.hallHalo.material.opacity = .34 + f * .16 + Math.sin(clock * .55) * .04;
+  if (WORLD.hallHaloCore) WORLD.hallHaloCore.material.opacity = .22 + f * .12 + Math.sin(clock * .72 + 1.2) * .035;
+  if (WORLD.hallLight) WORLD.hallLight.intensity = 3.7 * (1 + f * .34) * (1 + Math.sin(clock * .41) * .05);
+  if (WORLD.moonHalo) WORLD.moonHalo.material.opacity = .46 + f * .11 + Math.sin(clock * .34) * .055;
   if (WORLD.lanternLights) WORLD.lanternLights.forEach((l, i) => {
-    l.intensity = 2.6 * (1 + f * .55) * (.86 + .22 * Math.sin(clock * (2.3 + i * .7) + i * 2.1) + .1 * pulse);
+    l.intensity = 2.85 * (1 + f * .58) * (.84 + .24 * Math.sin(clock * (2.35 + i * .72) + i * 2.1) + .12 * pulse);
   });
   if (WORLD.lanternGlows) WORLD.lanternGlows.forEach(g => { g.quaternion.copy(camera.quaternion); });
 
